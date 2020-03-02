@@ -1,0 +1,151 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 9a89ed10a4b864c2febd5df9de5700183acf25d2de4080a5fff25ddb83ad936c
+
+name:           devops-task
+version:        0.1.0.0
+category:       api
+homepage:       https://github.com/on-ramp/devops-task#readme
+bug-reports:    https://github.com/on-ramp/devops-task/issues
+author:         Coinweb ltd.
+maintainer:     juan@coinweb.io
+copyright:      2020 Coinweb ltd.
+license:        MIT
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/on-ramp/devops-task
+
+library
+  exposed-modules:
+      Devops.Api
+      Devops.Config
+      Devops.Lib
+  other-modules:
+      Devops.Api.Security
+      Devops.Lib.Data.Model
+      Devops.Lib.DataAccess.DB
+      Devops.Lib.DataAccess.DB.Internal
+      Devops.Lib.DataAccess.DB.MockData
+      Servant.JsonRpc
+      Paths_devops_task
+  hs-source-dirs:
+      src
+  default-extensions: OverloadedStrings
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bifunctors
+    , containers
+    , either
+    , fast-logger
+    , lens
+    , mtl
+    , raw-strings-qq
+    , servant
+    , servant-server
+    , sqlite-simple
+    , sqlite-simple-errors
+    , temporary
+    , text
+    , time
+    , transformers
+    , wai
+    , wai-extra
+    , warp
+  default-language: Haskell2010
+
+executable devops-api
+  main-is: Main.hs
+  other-modules:
+      Paths_devops_task
+  hs-source-dirs:
+      app
+  default-extensions: OverloadedStrings
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -O2 -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base
+    , bifunctors
+    , containers
+    , devops-task
+    , either
+    , fast-logger
+    , lens
+    , mtl
+    , raw-strings-qq
+    , servant
+    , servant-server
+    , sqlite-simple
+    , sqlite-simple-errors
+    , temporary
+    , text
+    , time
+    , transformers
+    , wai
+    , wai-extra
+    , warp
+  default-language: Haskell2010
+
+test-suite spec
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Devops.ApiDataFixturesTest
+      Devops.ApiFixtures
+      Devops.ApiSpec
+      Servant.JsonRpcSpec
+      Devops.Api
+      Devops.Api.Security
+      Devops.Config
+      Devops.Lib
+      Devops.Lib.Data.Model
+      Devops.Lib.DataAccess.DB
+      Devops.Lib.DataAccess.DB.Internal
+      Devops.Lib.DataAccess.DB.MockData
+      Servant.JsonRpc
+      Paths_devops_task
+  hs-source-dirs:
+      test
+      src
+  default-extensions: OverloadedStrings
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -threaded -O2 -rtsopts -with-rtsopts=-N
+  build-depends:
+      QuickCheck
+    , aeson
+    , base >=4.7 && <5
+    , base64-bytestring
+    , bifunctors
+    , bytestring
+    , containers
+    , either
+    , fast-logger
+    , hspec ==2.*
+    , hspec-expectations-lifted
+    , hspec-wai
+    , hspec-wai-json
+    , http-types
+    , lens
+    , mtl
+    , raw-strings-qq
+    , servant
+    , servant-server
+    , sqlite-simple
+    , sqlite-simple-errors
+    , temporary
+    , text
+    , time
+    , transformers
+    , wai
+    , wai-extra
+    , warp
+  default-language: Haskell2010
