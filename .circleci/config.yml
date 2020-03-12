@@ -18,29 +18,29 @@ jobs:
       - setup_remote_docker
 
       - restore_cache:
-        keys:
-          - cacheV0-{{ .Branch }}
-        paths:
-          - /docker-cache/appimg.tar
+          keys:
+            - cacheV0-{{ .Branch }}
+          paths:
+            - /docker-cache/appimg.tar
 
       - run:
-        name: Load Docker build cache
-        command: |
-          docker load < /docker-cache/appimg.tar
+          name: Load Docker build cache
+          command: |
+            docker load < /docker-cache/appimg.tar
 
   docker-shutdown:
     <<: *globals
 
     steps:
       - run:
-        name: Save Docker build cache
-        command: |
-          docker save > /docker-cache/appimg.tar
+          name: Save Docker build cache
+          command: |
+            docker save > /docker-cache/appimg.tar
 
       - save_cache:
-        key: cacheV0-{{ .Branch }}-{{ epoch }}
-        paths:
-          - /docker-cache/appimg.tar
+          key: cacheV0-{{ .Branch }}-{{ epoch }}
+          paths:
+            - /docker-cache/appimg.tar
 
   run-unit-tests:
     <<: *globals
@@ -49,20 +49,20 @@ jobs:
       - checkout
 
       - run:
-        name: Running unit-tests
-        command: |
-          stack build --test --system-ghc
+          name: Running unit-tests
+          command: |
+            stack build --test --system-ghc
 
       - run:
-        name: Making release binary
-        command: >
-          stack install
-                --system-ghc
-                --local-bin-path /opt/app
+          name: Making release binary
+          command: >
+            stack install
+                  --system-ghc
+                  --local-bin-path /opt/app
 
       - persist_to_workspace:
-        paths:
-          - /opt/app
+          paths:
+            - /opt/app
 
   build-release-image:
     <<: *globals
