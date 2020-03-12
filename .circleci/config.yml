@@ -92,12 +92,12 @@ workflows:
       - run-unit-tests
 
       - build-release-image:
-        requires:
-          - run-unit-tests
+          requires:
+            - run-unit-tests
 
       - docker-shutdown:
-        requires:
-          - build-release-image
+          requires:
+            - build-release-image
 
     #filters:
     #  branches:
