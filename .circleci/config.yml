@@ -1,0 +1,103 @@
+
+#-- https://circleci.com/docs/2.0/configuration-reference/ --#
+
+version: 2
+
+globals: &globals
+  docker:
+    - image: fpco/stack-build-small:lts-14.5
+    - image: docker:19.03-git
+
+  working_directory: /opt/CI
+
+jobs:
+  docker-warmup:
+    <<: *globals
+
+    steps:
+      - setup_remote_docker
+
+      - restore_cache:
+        keys:
+          - cacheV0-{{ .Branch }}
+        paths:
+          - /docker-cache/appimg.tar
+
+      - run:
+        name: Load Docker build cache
+        command: |
+          docker load < /docker-cache/appimg.tar
+
+  docker-shutdown:
+    <<: *globals
+
+    steps:
+      - run:
+        name: Save Docker build cache
+        command: |
+          docker save > /docker-cache/appimg.tar
+
+      - save_cache:
+        key: cacheV0-{{ .Branch }}-{{ epoch }}
+        paths:
+          - /docker-cache/appimg.tar
+
+  run-unit-tests:
+    <<: *globals
+
+    steps:
+      - checkout
+
+      - run:
+        name: Running unit-tests
+        command: |
+          stack build --test --system-ghc
+
+      - run:
+        name: Making release binary
+        command: >
+          stack install
+                --system-ghc
+                --local-bin-path /opt/app
+
+      - persist_to_workspace:
+        paths:
+          - /opt/app
+
+  build-release-image:
+    <<: *globals
+
+    steps:
+      - attach_workspace:
+        at: /opt/CI/stack-OUT
+
+      - run:
+        name: Building release image
+        command: >
+          docker build
+                -f .circleci/app-release.dockerfile
+                --cache-from appimg
+                --tag devops-api:latest
+                .
+
+#-- Ref: https://circleci.com/docs/2.0/workflows/ --#
+
+workflows:
+  version: 2
+
+  pipeline-main:
+    jobs:
+      - docker-warmup
+
+      - run-unit-tests
+
+      - build-release-image:
+        requires: [ 'run-unit-tests' ]
+
+      - docker-shutdown:
+        requires: [ 'build-release-image' ]
+
+    filters:
+      branches:
+        - master
+        - develop

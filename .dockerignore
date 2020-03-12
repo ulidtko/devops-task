@@ -1,0 +1,6 @@
+.git
+.gitignore
+.circleci
+.hdevtools.sock
+.stack-work
+dist
