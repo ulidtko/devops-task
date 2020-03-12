@@ -69,16 +69,16 @@ jobs:
 
     steps:
       - attach_workspace:
-        at: /opt/CI/stack-OUT
+          at: /opt/CI/stack-OUT
 
       - run:
-        name: Building release image
-        command: >
-          docker build
-                -f .circleci/app-release.dockerfile
-                --cache-from appimg
-                --tag devops-api:latest
-                .
+          name: Building release image
+          command: >
+            docker build
+                  -f .circleci/app-release.dockerfile
+                  --cache-from appimg
+                  --tag devops-api:latest
+                  .
 
 #-- Ref: https://circleci.com/docs/2.0/workflows/ --#
 
