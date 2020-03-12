@@ -58,11 +58,12 @@ jobs:
           command: >
             stack install
                   --system-ghc
-                  --local-bin-path /opt/app
+                  --local-bin-path stack-OUT
 
       - persist_to_workspace:
+          root: .
           paths:
-            - /opt/app
+            - stack-OUT
 
   build-release-image:
     <<: *globals
