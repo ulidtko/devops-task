@@ -10,6 +10,9 @@ globals: &globals
 
   working_directory: /opt/CI
 
+stack_opts: &STACKOPTS >
+  -j1 --time-in-log --terminal-width=120 --color=always
+
 jobs:
   docker-warmup:
     <<: *globals
@@ -50,8 +53,9 @@ jobs:
 
       - run:
           name: Compiling (stack build)
-          command: |
-            stack build --test --no-run-tests --system-ghc
+          command: !join [stack, *STACKOPTS,
+                build --test --no-run-tests --system-ghc
+            ]
 
       - run:
           name: Running unit-tests
