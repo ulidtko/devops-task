@@ -26,7 +26,7 @@ jobs:
       - run:
           name: Load Docker build cache
           command: |
-            docker load < /docker-cache/appimg.tar
+            docker load < /docker-cache/appimg.tar || :
 
   docker-shutdown:
     <<: *globals
@@ -42,16 +42,21 @@ jobs:
           paths:
             - /docker-cache/appimg.tar
 
-  run-unit-tests:
+  compile-and-test:
     <<: *globals
 
     steps:
       - checkout
 
       - run:
+          name: Compiling (stack build)
+          command: |
+            stack build --test --no-run-tests --system-ghc
+
+      - run:
           name: Running unit-tests
           command: |
-            stack build --test --system-ghc
+            stack test
 
       - run:
           name: Making release binary
@@ -90,11 +95,11 @@ workflows:
     jobs:
       - docker-warmup
 
-      - run-unit-tests
+      - compile-and-test
 
       - build-release-image:
           requires:
-            - run-unit-tests
+            - compile-and-test
 
       - docker-shutdown:
           requires:
