@@ -1,7 +1,7 @@
 
-#-- https://circleci.com/docs/2.0/configuration-reference/ --#
-
 version: 2
+
+#-- https://circleci.com/docs/2.0/writing-yaml/ --#
 
 globals: &globals
   docker:
@@ -10,10 +10,59 @@ globals: &globals
 
   working_directory: /opt/CI
 
-stack_opts: &STACKOPTS >
-  -j1 --time-in-log --terminal-width=120 --color=always
+#-- https://circleci.com/docs/2.0/configuration-reference/ --#
 
 jobs:
+  compile-and-test:
+    <<: *globals
+
+    steps:
+      - checkout
+
+      - run:
+          name: "*CACHEME* stack package index" #-- FIXME
+          command: |
+            stack --no-terminal setup
+
+      - run:
+          name: Compiling (stack build)
+          command: |
+            stack -j1 --no-terminal \
+                build --test --no-run-tests --system-ghc
+
+      - run:
+          name: Running unit-tests
+          command: |
+            stack test
+
+      - run:
+          name: Making release binary
+          command: |
+            stack install \
+                  --system-ghc \
+                  --local-bin-path stack-OUT
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - stack-OUT
+
+  build-release-image:
+    <<: *globals
+
+    steps:
+      - attach_workspace:
+          at: /opt/CI/stack-OUT
+
+      - run:
+          name: Building release image
+          command: |
+            docker build \
+                  -f .circleci/app-release.dockerfile \
+                  --cache-from appimg \
+                  --tag devops-api:latest \
+                  .
+
   docker-warmup:
     <<: *globals
 
@@ -22,7 +71,7 @@ jobs:
 
       - restore_cache:
           keys:
-            - cacheV0-{{ .Branch }}
+            - docker-build-cache.v0.{{ .Branch }}
           paths:
             - /docker-cache/appimg.tar
 
@@ -41,56 +90,12 @@ jobs:
             docker save > /docker-cache/appimg.tar
 
       - save_cache:
-          key: cacheV0-{{ .Branch }}-{{ epoch }}
+          key: docker-build-cache.v0.{{ .Branch }}-{{ epoch }}
           paths:
             - /docker-cache/appimg.tar
 
-  compile-and-test:
-    <<: *globals
 
-    steps:
-      - checkout
-
-      - run:
-          name: Compiling (stack build)
-          command: >
-            stack -j1 --time-in-log --no-terminal \
-                build --test --no-run-tests --system-ghc
-
-      - run:
-          name: Running unit-tests
-          command: |
-            stack test
-
-      - run:
-          name: Making release binary
-          command: >
-            stack install
-                  --system-ghc
-                  --local-bin-path stack-OUT
-
-      - persist_to_workspace:
-          root: .
-          paths:
-            - stack-OUT
-
-  build-release-image:
-    <<: *globals
-
-    steps:
-      - attach_workspace:
-          at: /opt/CI/stack-OUT
-
-      - run:
-          name: Building release image
-          command: >
-            docker build
-                  -f .circleci/app-release.dockerfile
-                  --cache-from appimg
-                  --tag devops-api:latest
-                  .
-
-#-- Ref: https://circleci.com/docs/2.0/workflows/ --#
+#-- https://circleci.com/docs/2.0/workflows/ --#
 
 workflows:
   version: 2
