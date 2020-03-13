@@ -53,9 +53,9 @@ jobs:
 
       - run:
           name: Compiling (stack build)
-          command: !join [stack, *STACKOPTS,
+          command: >
+            stack -j1 --time-in-log --terminal-width=120 --color=always
                 build --test --no-run-tests --system-ghc
-            ]
 
       - run:
           name: Running unit-tests
