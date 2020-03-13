@@ -54,7 +54,7 @@ jobs:
       - run:
           name: Compiling (stack build)
           command: >
-            stack -j1 --time-in-log --terminal-width=120 --color=always
+            stack -j1 --time-in-log --terminal-width=120 --color=always \
                 build --test --no-run-tests --system-ghc
 
       - run:
@@ -107,6 +107,7 @@ workflows:
 
       - docker-shutdown:
           requires:
+            - docker-warmup
             - build-release-image
 
     #filters:
