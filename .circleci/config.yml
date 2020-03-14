@@ -87,6 +87,30 @@ jobs:
                   --tag devops-api:latest \
                   .
 
+  publish-release-image:
+    <<: *globals
+
+    steps:
+      - setup_remote_docker
+
+    - run:
+        name: "Show known docker images"
+        command: docker images
+
+    - run:
+        name: "DockerHub login"
+        command: >
+          docker login -u ulidtko --password-stdin index.docker.io <<< "$DOCKERHUB_TOKEN"
+
+    - run:
+        name: "Push image"
+        command: >
+          docker push devops-api:latest
+
+    - run:
+        name: "Cleanup"
+        command: docker logout; rm -fv ~/.docker/config.json
+
   docker-warmup:
     <<: *globals
 
@@ -134,6 +158,10 @@ workflows:
           requires:
             - docker-warmup
             - compile-and-test
+
+      - publish-release-image:
+          requires:
+            - build-release-image
 
       - docker-shutdown:
           requires:
