@@ -111,37 +111,6 @@ jobs:
         name: "Cleanup"
         command: docker logout; rm -fv ~/.docker/config.json
 
-  docker-warmup:
-    <<: *globals
-
-    steps:
-      - setup_remote_docker
-
-      - restore_cache:
-          keys:
-            - docker-build-cache.v0.{{ .Branch }}
-          paths:
-            - /docker-cache/appimg.tar
-
-      - run:
-          name: "Load Docker build cache"
-          command: |
-            docker load < /docker-cache/appimg.tar || :
-
-  docker-shutdown:
-    <<: *globals
-
-    steps:
-      - run:
-          name: "Save Docker build cache"
-          command: |
-            docker save > /docker-cache/appimg.tar
-
-      - save_cache:
-          key: docker-build-cache.v0.{{ .Branch }}-{{ .BuildNum }}
-          paths:
-            - /docker-cache/appimg.tar
-
 
 #-- https://circleci.com/docs/2.0/workflows/ --#
 
@@ -150,22 +119,14 @@ workflows:
 
   pipeline-main:
     jobs:
-      - docker-warmup
-
       - compile-and-test
 
       - build-release-image:
           requires:
-            - docker-warmup
             - compile-and-test
 
       - publish-release-image:
           requires:
-            - build-release-image
-
-      - docker-shutdown:
-          requires:
-            - docker-warmup
             - build-release-image
 
     #filters:
