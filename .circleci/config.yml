@@ -29,10 +29,11 @@ jobs:
       - restore_cache:
           name: "Loading warm built deps"
           keys:
-            - v1-built-deps-{{ checksum "stack.yaml.lock" }}
-            - v1-built-deps-
+            - v2-built-deps-{{ checksum "stack.yaml.lock" }}
+            - v2-built-deps-
           paths:
             - /home/stackage/.stack/snapshots
+            - /opt/CI/.stack-work/install
 
       - run:
           name: "Compiling dependencies"
@@ -42,9 +43,10 @@ jobs:
 
       - save_cache:
           name: "Caching built deps"
-          key: v1-built-deps-{{ checksum "stack.yaml.lock" }}
+          key: v2-built-deps-{{ checksum "stack.yaml.lock" }}
           paths:
             - /home/stackage/.stack/snapshots
+            - /opt/CI/.stack-work/install
 
       - run:
           name: "Compiling app"
@@ -67,10 +69,11 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
+            - .circleci
             - stack-OUT
 
 
-  build-release-image:
+  build-publish-release:
     <<: *globals
 
     docker:
@@ -81,7 +84,7 @@ jobs:
       - setup_remote_docker
 
       - attach_workspace:
-          at: /opt/CI/stack-OUT
+          at: /opt/CI
 
       - run:
           name: "Building release image"
@@ -90,14 +93,6 @@ jobs:
                   -f .circleci/app-release.dockerfile \
                   --tag devops-api:latest \
                   .
-
-
-  publish-release-image:
-    docker:
-      - image: docker:19.03-git
-
-    steps:
-      - setup_remote_docker
 
       - run:
           name: "Show known docker images"
@@ -131,10 +126,6 @@ workflows:
       - build-release-image:
           requires:
             - compile-and-test
-
-      - publish-release-image:
-          requires:
-            - build-release-image
 
     #filters:
     #  branches:
