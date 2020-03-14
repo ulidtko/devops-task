@@ -32,7 +32,7 @@ jobs:
             - v1-built-deps-{{ checksum "stack.yaml.lock" }}
             - v1-built-deps-
           paths:
-            - .stack-work/install
+            - /home/stackage/.stack/snapshots
 
       - run:
           name: "Compiling dependencies"
@@ -44,7 +44,7 @@ jobs:
           name: "Caching built deps"
           key: v1-built-deps-{{ checksum "stack.yaml.lock" }}
           paths:
-            - .stack-work/install
+            - /home/stackage/.stack/snapshots
 
       - run:
           name: "Compiling app"
@@ -71,6 +71,8 @@ jobs:
 
 
   build-release-image:
+    <<: *globals
+
     docker:
       #-- Ceci n'est pas une DinD
       - image: docker:19.03-git
@@ -86,7 +88,6 @@ jobs:
           command: |
             docker build \
                   -f .circleci/app-release.dockerfile \
-                  --cache-from appimg \
                   --tag devops-api:latest \
                   .
 
