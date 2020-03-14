@@ -27,11 +27,25 @@ jobs:
 
       - checkout
 
+      - restore_cache:
+          name: "Loading warm built deps"
+          keys:
+            - v1-built-deps-{{ checksum "stack.yaml.lock" }}
+            - v1-built-deps-
+          paths:
+            - .stack-work/install
+
       - run:
           name: "Compiling dependencies"
           command: |
             stack -j1 --no-terminal \
                 build --test --only-dependencies
+
+      - save_cache:
+          name: "Caching built deps"
+          key: v1-built-deps-{{ checksum "stack.yaml.lock" }}
+          paths:
+            - .stack-work/install
 
       - run:
           name: "Compiling app"
