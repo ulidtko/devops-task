@@ -20,23 +20,10 @@ jobs:
     <<: *globals
 
     steps:
-      - restore_cache:
-          name: "Loading cached stack snapshot index"
-          keys: [ stack-snapshot-index.v0 ]
-          paths:
-            - /home/stackage/.stack
-
       - run:
           name: "Updating stack package index"
           command: |
             stack --no-terminal update
-
-      - save_cache:
-          name: "Caching stack snapshot index"
-          when: on_success
-          key: stack-snapshot-index.v0.{{ checksum "/home/stackage/.stack/stack.sqlite3" }}
-          paths:
-            - /home/stackage/.stack
 
       - checkout
 
