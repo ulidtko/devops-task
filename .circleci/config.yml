@@ -8,6 +8,9 @@ globals: &globals
     - image: fpco/stack-build-small:lts-14.5
     - image: docker:19.03-git
 
+  environment:
+    - STACK_ROOT: /home/stackage/.stack
+
   working_directory: /opt/CI
 
 #-- https://circleci.com/docs/2.0/configuration-reference/ --#
@@ -17,26 +20,45 @@ jobs:
     <<: *globals
 
     steps:
+      - restore_cache:
+          name: "Loading cached stack snapshot index"
+          keys: [ stack-snapshot-index.v0 ]
+          paths:
+            - /home/stackage/.stack
+
+      - run:
+          name: "Updating stack package index"
+          command: |
+            stack --no-terminal update
+
+      - save_cache:
+          name: "Caching stack snapshot index"
+          when: on_success
+          key: stack-snapshot-index.v0.{{ checksum "/home/stackage/.stack/stack.sqlite3" }}
+          paths:
+            - /home/stackage/.stack
+
       - checkout
 
       - run:
-          name: "*CACHEME* stack package index" #-- FIXME
-          command: |
-            stack --no-terminal setup
-
-      - run:
-          name: Compiling (stack build)
+          name: "Compiling dependencies"
           command: |
             stack -j1 --no-terminal \
-                build --test --no-run-tests --system-ghc
+                build --test --only-dependencies
 
       - run:
-          name: Running unit-tests
+          name: "Compiling app"
+          command: |
+            stack -j1 --no-terminal \
+                build --test --no-run-tests
+
+      - run:
+          name: "Running unit-tests"
           command: |
             stack test
 
       - run:
-          name: Making release binary
+          name: "Making release binary"
           command: |
             stack install \
                   --system-ghc \
@@ -51,6 +73,8 @@ jobs:
     <<: *globals
 
     steps:
+      - setup_remote_docker
+
       - attach_workspace:
           at: /opt/CI/stack-OUT
 
@@ -76,7 +100,7 @@ jobs:
             - /docker-cache/appimg.tar
 
       - run:
-          name: Load Docker build cache
+          name: "Load Docker build cache"
           command: |
             docker load < /docker-cache/appimg.tar || :
 
@@ -85,12 +109,12 @@ jobs:
 
     steps:
       - run:
-          name: Save Docker build cache
+          name: "Save Docker build cache"
           command: |
             docker save > /docker-cache/appimg.tar
 
       - save_cache:
-          key: docker-build-cache.v0.{{ .Branch }}-{{ epoch }}
+          key: docker-build-cache.v0.{{ .Branch }}-{{ .BuildNum }}
           paths:
             - /docker-cache/appimg.tar
 
