@@ -4,13 +4,6 @@ version: 2
 #-- https://circleci.com/docs/2.0/writing-yaml/ --#
 
 globals: &globals
-  docker:
-    - image: fpco/stack-build-small:lts-14.5
-    - image: docker:19.03-git
-
-  environment:
-    - STACK_ROOT: /home/stackage/.stack
-
   working_directory: /opt/CI
 
 #-- https://circleci.com/docs/2.0/configuration-reference/ --#
@@ -18,6 +11,12 @@ globals: &globals
 jobs:
   compile-and-test:
     <<: *globals
+
+    docker:
+      - image: fpco/stack-build-small:lts-14.5
+
+    environment:
+      - STACK_ROOT: /home/stackage/.stack
 
     steps:
       - run:
@@ -70,8 +69,11 @@ jobs:
           paths:
             - stack-OUT
 
+
   build-release-image:
-    <<: *globals
+    docker:
+      #-- Ceci n'est pas une DinD
+      - image: docker:19.03-git
 
     steps:
       - setup_remote_docker
@@ -80,7 +82,7 @@ jobs:
           at: /opt/CI/stack-OUT
 
       - run:
-          name: Building release image
+          name: "Building release image"
           command: |
             docker build \
                   -f .circleci/app-release.dockerfile \
@@ -88,29 +90,32 @@ jobs:
                   --tag devops-api:latest \
                   .
 
+
   publish-release-image:
-    <<: *globals
+    docker:
+      - image: docker:19.03-git
 
     steps:
       - setup_remote_docker
 
-    - run:
-        name: "Show known docker images"
-        command: docker images
+      - run:
+          name: "Show known docker images"
+          command: docker images
 
-    - run:
-        name: "DockerHub login"
-        command: >
-          docker login -u ulidtko --password-stdin index.docker.io <<< "$DOCKERHUB_TOKEN"
+      - run:
+          name: "DockerHub login"
+          command: >
+            docker login -u ulidtko --password-stdin index.docker.io <<< "$DOCKERHUB_TOKEN"
 
-    - run:
-        name: "Push image"
-        command: >
-          docker push devops-api:latest
+      - run:
+          name: "Push image"
+          command: >
+            docker push devops-api:latest
 
-    - run:
-        name: "Cleanup"
-        command: docker logout; rm -fv ~/.docker/config.json
+      - run:
+          name: "Cleanup"
+          command: >
+            docker logout; rm -fv ~/.docker/config.json
 
 
 #-- https://circleci.com/docs/2.0/workflows/ --#
