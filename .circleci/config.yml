@@ -101,7 +101,7 @@ jobs:
       - run:
           name: "DockerHub login"
           command: >
-            docker login -u ulidtko --password-stdin index.docker.io <<< "$DOCKERHUB_TOKEN"
+            echo "$DOCKERHUB_TOKEN" | docker login -u ulidtko --password-stdin index.docker.io
 
       - run:
           name: "Push image"
