@@ -6,9 +6,13 @@ CI status: [![CircleCI, branch master](https://img.shields.io/circleci/build/bb/
 [1]: https://app.circleci.com/pipelines/bitbucket/ulidtko/wabalabadubda?branch=master
 [2]: https://app.circleci.com/pipelines/bitbucket/ulidtko/wabalabadubda?branch=develop
 
-Highlights:
+**Solution highlights:**
 
  * `stack.yaml.lock`-driven dependency caching.
+
+   Those commits affecting just the app code (and not touching stack.yaml) build in **90 seconds**. Those which do take **~30 minutes**.
+
+ * Release image size is **112 MiB**.
 
 ### TODO
 
