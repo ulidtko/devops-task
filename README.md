@@ -1,5 +1,21 @@
 # Devops Task
 
+## CI/CD matters
+
+CI status: [![CircleCI, branch master](https://img.shields.io/circleci/build/bb/ulidtko/wabalabadubda/master?label=master&token=b73c13cbee07743cc9812280b34b8482adb05681)][1] [![CircleCI, branch develop](https://img.shields.io/circleci/build/bb/ulidtko/wabalabadubda/develop?label=develop&token=b73c13cbee07743cc9812280b34b8482adb05681)][2]
+[1]: https://app.circleci.com/pipelines/bitbucket/ulidtko/wabalabadubda?branch=master
+[2]: https://app.circleci.com/pipelines/bitbucket/ulidtko/wabalabadubda?branch=develop
+
+Highlights:
+
+ * `stack.yaml.lock`-driven dependency caching.
+
+### TODO
+
+[ ] Make a better stack-build image. `fpco/stack-build{,-small}` is pathetic.
+[ ] Implement in-file (non-mock) DB.
+[ ] Branch segregation for deployment.
+
 ## Configuration
 
 There are a couple of environment variables it can be provided in order to change Server configuration:
