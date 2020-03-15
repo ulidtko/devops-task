@@ -91,7 +91,7 @@ jobs:
           command: |
             docker build \
                   -f .circleci/app-release.dockerfile \
-                  --tag devops-api:latest \
+                  --tag ulidtko/devops-api:latest \
                   .
 
       - run:
@@ -101,12 +101,12 @@ jobs:
       - run:
           name: "DockerHub login"
           command: >
-            echo "$DOCKERHUB_TOKEN" | docker login -u ulidtko --password-stdin index.docker.io
+            echo "$DOCKERHUB_TOKEN" | docker login -u ulidtko --password-stdin docker.io
 
       - run:
           name: "Push image"
           command: >
-            docker push devops-api:latest
+            docker push ulidtko/devops-api:latest
 
       - run:
           name: "Cleanup"
