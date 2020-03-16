@@ -2,14 +2,13 @@
 
 ## CI/CD matters
 
-CI status: [![CircleCI, branch master](https://img.shields.io/circleci/build/bb/ulidtko/wabalabadubda/master?label=master&token=b73c13cbee07743cc9812280b34b8482adb05681)][1] [![CircleCI, branch develop](https://img.shields.io/circleci/build/bb/ulidtko/wabalabadubda/develop?label=develop&token=b73c13cbee07743cc9812280b34b8482adb05681)][2]
+<!-- CI status badges -->[![CircleCI, branch master](https://img.shields.io/circleci/build/bb/ulidtko/wabalabadubda/master?label=master&token=b73c13cbee07743cc9812280b34b8482adb05681)][1] [![CircleCI, branch develop](https://img.shields.io/circleci/build/bb/ulidtko/wabalabadubda/develop?label=develop&token=b73c13cbee07743cc9812280b34b8482adb05681)][2]
 [1]: https://app.circleci.com/pipelines/bitbucket/ulidtko/wabalabadubda?branch=master
 [2]: https://app.circleci.com/pipelines/bitbucket/ulidtko/wabalabadubda?branch=develop
 
-**Solution highlights:**
+**Solution highlights**
 
- * `stack.yaml.lock`-driven dependency caching.
-
+ * `stack.yaml.lock`-driven dependency caching.  
    Those commits affecting just the app code (and not touching stack.yaml) build in **2-3 minutes**. Those which do take **~30 minutes**.
 
  * Release image size is **112 MiB**.
