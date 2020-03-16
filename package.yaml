@@ -23,6 +23,7 @@ dependencies:
   - aeson
   - bifunctors
   - containers
+  - directory
   - either
   - fast-logger
   - lens

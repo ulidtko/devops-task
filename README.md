@@ -16,7 +16,7 @@
 ### TODO
 
 [ ] Make a better stack-build image. `fpco/stack-build{,-small}` is pathetic.
-[ ] Implement in-file (non-mock) DB.
+[x] Implement persistent in-file (non-mock) DB.
 [ ] Branch segregation for deployment.
 [ ] QuickCheck-based test capable of catching the SQL injection in `Devops.Lib.DataAccess.DB`.
 
@@ -35,6 +35,10 @@ There are a couple of environment variables it can be provided in order to chang
 - `APP_API_BASIC_PASSWORD`
   - Description: To set User Password for Basic Auth
   - Default Value: **pass**
+
+- `APP_DB_FILE`
+  - Description: To set Sqlite DB filepath
+  - Default Value: **main.sqlite**
 
 ## Run
 
