@@ -1,0 +1,133 @@
+
+version: 2
+
+#-- https://circleci.com/docs/2.0/writing-yaml/ --#
+
+globals: &globals
+  working_directory: /opt/CI
+
+#-- https://circleci.com/docs/2.0/configuration-reference/ --#
+
+jobs:
+  compile-and-test:
+    <<: *globals
+
+    docker:
+      - image: fpco/stack-build-small:lts-14.5
+
+    environment:
+      - STACK_ROOT: /home/stackage/.stack
+
+    steps:
+      - run:
+          name: "Updating stack package index"
+          command: |
+            stack --no-terminal update
+
+      - checkout
+
+      - restore_cache:
+          name: "Loading warm built deps"
+          keys:
+            - v2-built-deps-{{ checksum "stack.yaml.lock" }}
+            - v2-built-deps-
+          paths:
+            - /home/stackage/.stack/snapshots
+            - /opt/CI/.stack-work/install
+
+      - run:
+          name: "Compiling dependencies"
+          command: |
+            stack -j1 --no-terminal \
+                build --test --only-dependencies
+
+      - save_cache:
+          name: "Caching built deps"
+          key: v2-built-deps-{{ checksum "stack.yaml.lock" }}
+          paths:
+            - /home/stackage/.stack/snapshots
+            - /opt/CI/.stack-work/install
+
+      - run:
+          name: "Compiling app"
+          command: |
+            stack -j1 --no-terminal \
+                build --test --no-run-tests
+
+      - run:
+          name: "Running unit-tests"
+          command: |
+            stack test
+
+      - run:
+          name: "Making release binary"
+          command: |
+            stack install \
+                  --system-ghc \
+                  --local-bin-path stack-OUT
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .circleci
+            - stack-OUT
+
+
+  build-publish-release:
+    <<: *globals
+
+    docker:
+      #-- Ceci n'est pas une DinD
+      - image: docker:19.03-git
+
+    steps:
+      - setup_remote_docker
+
+      - attach_workspace:
+          at: /opt/CI
+
+      - run:
+          name: "Building release image"
+          command: |
+            docker build \
+                  -f .circleci/app-release.dockerfile \
+                  --tag ulidtko/devops-api:latest \
+                  .
+
+      - run:
+          name: "Show known docker images"
+          command: docker images
+
+      - run:
+          name: "DockerHub login"
+          command: >
+            echo "$DOCKERHUB_TOKEN" | docker login -u ulidtko --password-stdin docker.io
+
+      - run:
+          name: "Push image"
+          command: >
+            docker push ulidtko/devops-api:latest
+
+      - run:
+          name: "Cleanup"
+          command: >
+            docker logout; rm -fv ~/.docker/config.json
+
+
+#-- https://circleci.com/docs/2.0/workflows/ --#
+
+workflows:
+  version: 2
+
+  pipeline-main:
+    jobs:
+      - compile-and-test
+
+      - build-publish-release:
+          requires:
+            - compile-and-test
+
+    #filters:
+    #  branches:
+    #    - master
+    #    - develop
