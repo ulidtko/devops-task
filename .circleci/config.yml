@@ -127,7 +127,8 @@ workflows:
           requires:
             - compile-and-test
 
-    #filters:
-    #  branches:
-    #    - master
-    #    - develop
+          filters:
+            branches:
+              only:
+                - master
+                - develop
