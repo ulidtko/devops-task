@@ -10,7 +10,7 @@ CI status: [![CircleCI, branch master](https://img.shields.io/circleci/build/bb/
 
  * `stack.yaml.lock`-driven dependency caching.
 
-   Those commits affecting just the app code (and not touching stack.yaml) build in **90 seconds**. Those which do take **~30 minutes**.
+   Those commits affecting just the app code (and not touching stack.yaml) build in **2-3 minutes**. Those which do take **~30 minutes**.
 
  * Release image size is **112 MiB**.
 
@@ -19,6 +19,7 @@ CI status: [![CircleCI, branch master](https://img.shields.io/circleci/build/bb/
 [ ] Make a better stack-build image. `fpco/stack-build{,-small}` is pathetic.
 [ ] Implement in-file (non-mock) DB.
 [ ] Branch segregation for deployment.
+[ ] QuickCheck-based test capable of catching the SQL injection in `Devops.Lib.DataAccess.DB`.
 
 ## Configuration
 
