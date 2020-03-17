@@ -6,6 +6,7 @@ module Devops.Lib.DataAccess.DB.Internal
   , initDBWithData
   ) where
 
+import           Control.Monad (when)
 import           Devops.Lib.Data.Model
 import           Devops.Lib.DataAccess.DB.MockData
 import           Database.SQLite.Simple
@@ -13,6 +14,7 @@ import           Database.SQLite.Simple.FromField
 import           Database.SQLite.Simple.Internal
 import           Database.SQLite.Simple.Ok
 import           Text.RawString.QQ
+import           System.Directory (doesFileExist)
 
 instance FromRow Transaction where
   fromRow = Transaction
@@ -31,7 +33,10 @@ instance FromRow Balance where
   fromRow = Balance <$> field <*> field <*> field <*> pure True
 
 initDB :: FilePath -> IO ()
-initDB dbFile = initDBWithData dbFile initData
+initDB dbFile = do
+    needsInit <- not <$> doesFileExist dbFile
+    when needsInit $
+        initDBWithData dbFile initData
 
 initDBWithData :: FilePath -> (Connection -> IO ()) -> IO ()
 initDBWithData dbFile initFn = withConnection dbFile $ \conn -> do
