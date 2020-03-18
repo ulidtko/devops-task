@@ -20,6 +20,24 @@
 [x] Branch segregation for deployment.
 [ ] QuickCheck-based test capable of catching the SQL injection in `Devops.Lib.DataAccess.DB`.
 
+### The CD part: Kubernetes
+
+First, check out `./minikube-deploy.sh` (assumes you got minikube up and running).
+
+Next, there's a "simple" **live deployment** (a degree of CD integrated into CircleCI). This deployment is done mostly manually, using resource definitions from the `.k8s` subdirectory in this repo. The CI pipeline however, can *update* the live installation.
+
+  * Staging instance (k8s namespace `app-staging`) from branch `master`: TODO
+
+  * Development instance (k8s namespace `app-develop`) from branch `develop`:
+
+    curl -H'Content-Type: application/json' \
+        http://64.225.82.181/api \
+        -d'{"jsonrpc":"2.0","id":0,"method":"get_raw_transactions","params":{"address": "DEVADDR_K"}}' \
+        -u 'devops:Zee0aifoh[ghohv1'
+
+This "live deployment" is temporary for demonstration. It won't last long.
+
+
 ## Configuration
 
 There are a couple of environment variables it can be provided in order to change Server configuration:
