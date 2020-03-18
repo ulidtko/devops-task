@@ -110,12 +110,12 @@ jobs:
           command: |
             case $CIRCLE_BRANCH in
               master)
-                docker tag circleci/app:just-built ulidtko/devops-api:stage.b${CIRCLE_BUILD_NUM}
-                docker push ulidtko/devops-api:stage.b${CIRCLE_BUILD_NUM}
+                docker tag circleci/app:just-built ulidtko/devops-api:stage.${CIRCLE_SHA1}
+                docker push ulidtko/devops-api:stage.${CIRCLE_SHA1}
                 ;;
               develop)
-                docker tag circleci/app:just-built ulidtko/devops-api:develop.b${CIRCLE_BUILD_NUM}
-                docker push ulidtko/devops-api:develop.b${CIRCLE_BUILD_NUM}
+                docker tag circleci/app:just-built ulidtko/devops-api:develop.${CIRCLE_SHA1}
+                docker push ulidtko/devops-api:develop.${CIRCLE_SHA1}
                 ;;
             esac
 
@@ -131,11 +131,23 @@ jobs:
 
     steps:
       - run:
-          command: kubectl version
+          name: "kubectl setup"
+          command: |
+            version
+            config set-credentials circleci/digitalocean --token="${K8S_CIRCLECI_TOKEN}"
+            config set-cluster digitalocean --server=https://e478c52e-1767-4652-a345-bbda4df85474.k8s.ondigitalocean.com
+            config set-context develop/digitalocean/circleci --user=circleci/digitalocean --namespace=app-develop --cluster=digitalocean
+            config use-context develop/digitalocean/circleci
 
       - run:
           name: "kubectl patch deployment"
-          command: echo TODO
+          command: |
+            patch deployment -p ' \
+              {"spec":{"template":{"spec":{"containers":[ \
+                  {"name":"devops-task-pod", \
+                   "image":"docker.io/ulidtko/devops-api:develop.'${CIRCLE_SHA1}'"} \
+              ]}}}}'
+
 
 
 #-- https://circleci.com/docs/2.0/workflows/ --#
