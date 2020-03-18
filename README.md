@@ -19,6 +19,7 @@
 [x] Implement persistent in-file (non-mock) DB.
 [x] Branch segregation for deployment.
 [ ] QuickCheck-based test capable of catching the SQL injection in `Devops.Lib.DataAccess.DB`.
+[ ] Proper liveness checking route; `/api/warp-ping` or something. Without it, k8s deployment flickers (has no good way of health checking).
 
 ### The CD part: Kubernetes
 

@@ -44,8 +44,8 @@ spec:
               scheme: HTTP
               path: /
               port: 3000
-            initialDelaySeconds: 30
-            timeoutSeconds: 30
+            initialDelaySeconds: 30000
+            timeoutSeconds: 30000
 
           securityContext:
             allowPrivilegeEscalation: false
