@@ -1,0 +1,26 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: circleci-bot
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: circleci-grants
+subjects:
+  - kind: ServiceAccount
+    name: circleci
+    namespace: app-develop
+  - kind: ServiceAccount
+    name: circleci
+    namespace: app-stage
+roleRef:
+  kind: ClusterRole
+  name: circleci-bot
+  apiGroup: rbac.authorization.k8s.io

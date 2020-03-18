@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.31.2.
+-- This file has been generated from package.yaml by hpack version 0.33.0.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9a89ed10a4b864c2febd5df9de5700183acf25d2de4080a5fff25ddb83ad936c
+-- hash: a1f44809fc093259042c51e6173010a3084ae3e42415855248ff34a0e04bcd0c
 
 name:           devops-task
 version:        0.1.0.0
@@ -46,6 +46,7 @@ library
     , base >=4.7 && <5
     , bifunctors
     , containers
+    , directory
     , either
     , fast-logger
     , lens
@@ -78,6 +79,7 @@ executable devops-api
     , bifunctors
     , containers
     , devops-task
+    , directory
     , either
     , fast-logger
     , lens
@@ -127,6 +129,7 @@ test-suite spec
     , bifunctors
     , bytestring
     , containers
+    , directory
     , either
     , fast-logger
     , hspec ==2.*

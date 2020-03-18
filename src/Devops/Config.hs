@@ -38,7 +38,7 @@ createConfig =
   Config
   <$> getBasicAuthConf
   <*> getServerConf
-  <*> emptySystemTempFile "counterparty.db"
+  <*> getDbConf
 
 getServerConf  :: IO ServerConfig
 getServerConf  = ServerConfig <$> envOrDefault "APP_API_PORT" "3000" read
@@ -51,4 +51,7 @@ getBasicAuthConf = BasicAuthConfig
 envOrDefault :: String -> String -> (String -> b) -> IO b
 envOrDefault key def fn = fromMaybe def <$> lookupEnv key <**> pure fn
 
-
+getDbConf :: IO FilePath
+getDbConf =
+  lookupEnv "APP_DB_FILE" >>=
+    maybe (emptySystemTempFile "counterparty.db") return

@@ -71,6 +71,7 @@ jobs:
           paths:
             - .circleci
             - stack-OUT
+            - sample-data
 
 
   build-publish-release:
@@ -91,7 +92,8 @@ jobs:
           command: |
             docker build \
                   -f .circleci/app-release.dockerfile \
-                  --tag ulidtko/devops-api:latest \
+                  --build-arg CI_BRANCH=${CIRCLE_BRANCH} \
+                  --tag circleci/app:just-built \
                   .
 
       - run:
@@ -105,13 +107,54 @@ jobs:
 
       - run:
           name: "Push image"
-          command: >
-            docker push ulidtko/devops-api:latest
+          command: |
+            case $CIRCLE_BRANCH in
+              master)
+                docker tag circleci/app:just-built ulidtko/devops-api:stage.${CIRCLE_SHA1}
+                docker push ulidtko/devops-api:stage.${CIRCLE_SHA1}
+                ;;
+              develop)
+                docker tag circleci/app:just-built ulidtko/devops-api:develop.${CIRCLE_SHA1}
+                docker push ulidtko/devops-api:develop.${CIRCLE_SHA1}
+                ;;
+            esac
 
       - run:
           name: "Cleanup"
           command: >
             docker logout; rm -fv ~/.docker/config.json
+
+
+  push-k8s-deploy-develop:
+    docker:
+      - image: bitnami/kubectl:1.17
+        entrypoint: /bin/bash
+        user: daemon
+        environment:
+          - HOME: /tmp
+
+    steps:
+      - run:
+          name: "kubectl setup"
+          command: |
+            echo "${K8S_CIRCLECI_CACRT}" | base64 -d > /tmp/cacert
+            kubectl config set-credentials circleci \
+                    --token="${K8S_CIRCLECI_TOKEN}"
+            kubectl config set-cluster digitalocean \
+                    --server=https://e478c52e-1767-4652-a345-bbda4df85474.k8s.ondigitalocean.com \
+                    --certificate-authority=/tmp/cacert
+            kubectl config set-context develop/digitalocean/circleci \
+                    --user=circleci --namespace=app-develop --cluster=digitalocean
+            kubectl config use-context develop/digitalocean/circleci
+            kubectl version
+
+      - run:
+          name: "kubernetes deployment"
+          command: |
+            #-- this is one hell of a PITA to split onto several lines...
+            IMG_TAG_PATCH='{"spec":{"template":{"spec":{"containers":[{"name":"devops-task-pod","image":"docker.io/ulidtko/devops-api:develop.'"${CIRCLE_SHA1}"'"}]}}}}'
+            kubectl patch deployment devops-api -p "$IMG_TAG_PATCH"
+
 
 
 #-- https://circleci.com/docs/2.0/workflows/ --#
@@ -127,7 +170,16 @@ workflows:
           requires:
             - compile-and-test
 
-    #filters:
-    #  branches:
-    #    - master
-    #    - develop
+          filters:
+            branches:
+              only:
+                - master
+                - develop
+
+      - push-k8s-deploy-develop:
+          requires:
+            - build-publish-release
+          filters:
+            branches:
+              only:
+                - develop

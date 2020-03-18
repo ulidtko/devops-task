@@ -1,0 +1,55 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: devops-api
+  labels:
+    k8s-app: devops-test-task
+spec:
+  replicas: 1
+  revisionHistoryLimit: 50
+  selector:
+    matchLabels:
+      k8s-app: devops-test-task
+  template:
+    metadata:
+      labels:
+        k8s-app: devops-test-task
+    spec:
+      containers:
+        - name: devops-task-pod
+          image: docker.io/ulidtko/devops-api:latest-develop
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+
+          env:
+            - name: APP_DB_FILE
+              value: "main.sqlite"
+
+            - name: APP_API_BASIC_USER_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: app-basic-creds
+                  key: username
+
+            - name: APP_API_BASIC_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-basic-creds
+                  key: password
+
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /
+              port: 3000
+            initialDelaySeconds: 30000
+            timeoutSeconds: 30000
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 1001
+            runAsGroup: 2001
+
