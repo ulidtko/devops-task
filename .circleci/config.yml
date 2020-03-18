@@ -71,6 +71,7 @@ jobs:
           paths:
             - .circleci
             - stack-OUT
+            - sample-data
 
 
   build-publish-release:
@@ -91,6 +92,7 @@ jobs:
           command: |
             docker build \
                   -f .circleci/app-release.dockerfile \
+                  --build-arg CI_BRANCH=${CIRCLE_BRANCH} \
                   --tag circleci/app:just-built \
                   .
 

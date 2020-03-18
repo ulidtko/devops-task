@@ -24,6 +24,9 @@ spec:
               protocol: TCP
 
           env:
+            - name: APP_DB_FILE
+              value: "main.sqlite"
+
             - name: APP_API_BASIC_USER_NAME
               valueFrom:
                 secretKeyRef:
