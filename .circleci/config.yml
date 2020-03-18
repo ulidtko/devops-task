@@ -149,15 +149,10 @@ jobs:
             kubectl version
 
       - run:
-          name: "kubectl patch deployment"
+          name: "kubernetes deployment"
           command: |
-            set -x
-            IFS='' read -r -d '' IMG_TAG_PATCH << EOF
-              {"spec":{"template":{"spec":{"containers":[
-                  {"name":"devops-task-pod",
-                   "image":"docker.io/ulidtko/devops-api:develop.${CIRCLE_SHA1}"}
-              ]}}}}
-            EOF
+            #-- this is one hell of a PITA to split onto several lines...
+            IMG_TAG_PATCH='{"spec":{"template":{"spec":{"containers":[{"name":"devops-task-pod","image":"docker.io/ulidtko/devops-api:develop.'"${CIRCLE_SHA1}"'"}]}}}}'
             kubectl patch deployment devops-api -p "$IMG_TAG_PATCH"
 
 
