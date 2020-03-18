@@ -14,16 +14,16 @@ password=$( python3 -c 'import base64; print(base64.a85encode(open("/dev/urandom
 username=devops
 
 log "creating Deployment"
-kubectl apply -f .k8s/app/ -n app-develop
+kubectl apply -f .k8s/app/ -n app-staging
 
 log "applying the generated creds"
-kubectl -n app-develop delete secret app-basic-creds || true
-kubectl -n app-develop \
+kubectl -n app-staging delete secret app-basic-creds || true
+kubectl -n app-staging \
     create secret generic app-basic-creds \
     --from-literal=username="$username" \
     --from-literal=password="$password"
 
-url="$(minikube service -n app-develop devops-test-task --url)"
+url="$(minikube service -n app-staging devops-test-task --url)"
 
 log ""
 log "All done. Poke the running api with curls like this:"

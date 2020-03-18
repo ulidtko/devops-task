@@ -110,8 +110,8 @@ jobs:
           command: |
             case $CIRCLE_BRANCH in
               master)
-                docker tag circleci/app:just-built ulidtko/devops-api:stage.${CIRCLE_SHA1}
-                docker push ulidtko/devops-api:stage.${CIRCLE_SHA1}
+                docker tag circleci/app:just-built ulidtko/devops-api:staging.${CIRCLE_SHA1}
+                docker push ulidtko/devops-api:staging.${CIRCLE_SHA1}
                 ;;
               develop)
                 docker tag circleci/app:just-built ulidtko/devops-api:develop.${CIRCLE_SHA1}
@@ -183,3 +183,11 @@ workflows:
             branches:
               only:
                 - develop
+
+      #- push-k8s-deploy-staging:
+      #    requires:
+      #      - build-publish-release
+      #    filters:
+      #      branches:
+      #        only:
+      #          - master

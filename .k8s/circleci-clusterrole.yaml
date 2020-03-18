@@ -19,7 +19,7 @@ subjects:
     namespace: app-develop
   - kind: ServiceAccount
     name: circleci
-    namespace: app-stage
+    namespace: app-staging
 roleRef:
   kind: ClusterRole
   name: circleci-bot
