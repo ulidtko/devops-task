@@ -151,11 +151,14 @@ jobs:
       - run:
           name: "kubectl patch deployment"
           command: |
-            kubectl patch deployment -p \
-              '{"spec":{"template":{"spec":{"containers":['\
-                  '{"name":"devops-task-pod", '\
-                   '"image":"docker.io/ulidtko/devops-api:develop.'${CIRCLE_SHA1}'"}'\
-              ']}}}}'
+            set -x
+            IFS='' read -r -d '' IMG_TAG_PATCH << EOF
+              {"spec":{"template":{"spec":{"containers":[
+                  {"name":"devops-task-pod",
+                   "image":"docker.io/ulidtko/devops-api:develop.${CIRCLE_SHA1}"}
+              ]}}}}
+            EOF
+            kubectl patch deployment -p "$IMG_TAG_PATCH"
 
 
 
