@@ -110,12 +110,12 @@ jobs:
           command: |
             case $CIRCLE_BRANCH in
               master)
-                docker tag circleci/app:just-built ulidtko/devops-api:latest-stage
-                docker push ulidtko/devops-api:latest-stage
+                docker tag circleci/app:just-built ulidtko/devops-api:stage.b${CIRCLE_BUILD_NUM}
+                docker push ulidtko/devops-api:stage.b${CIRCLE_BUILD_NUM}
                 ;;
               develop)
-                docker tag circleci/app:just-built ulidtko/devops-api:latest-develop
-                docker push ulidtko/devops-api:latest-develop
+                docker tag circleci/app:just-built ulidtko/devops-api:develop.b${CIRCLE_BUILD_NUM}
+                docker push ulidtko/devops-api:develop.b${CIRCLE_BUILD_NUM}
                 ;;
             esac
 
@@ -123,6 +123,19 @@ jobs:
           name: "Cleanup"
           command: >
             docker logout; rm -fv ~/.docker/config.json
+
+
+  push-k8s-deploy-develop:
+    docker:
+      - image: bitnami/kubectl:1.17
+
+    steps:
+      - run:
+          command: kubectl version
+
+      - run:
+          name: "kubectl patch deployment"
+          command: echo TODO
 
 
 #-- https://circleci.com/docs/2.0/workflows/ --#
@@ -142,4 +155,12 @@ workflows:
             branches:
               only:
                 - master
+                - develop
+
+      - push-k8s-deploy-develop:
+          requires:
+            - build-publish-release
+          filters:
+            branches:
+              only:
                 - develop
