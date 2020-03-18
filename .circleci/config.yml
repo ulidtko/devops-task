@@ -128,25 +128,34 @@ jobs:
   push-k8s-deploy-develop:
     docker:
       - image: bitnami/kubectl:1.17
+        entrypoint: /bin/bash
+        user: daemon
+        environment:
+          - HOME: /tmp
 
     steps:
       - run:
           name: "kubectl setup"
           command: |
-            version
-            config set-credentials circleci/digitalocean --token="${K8S_CIRCLECI_TOKEN}"
-            config set-cluster digitalocean --server=https://e478c52e-1767-4652-a345-bbda4df85474.k8s.ondigitalocean.com
-            config set-context develop/digitalocean/circleci --user=circleci/digitalocean --namespace=app-develop --cluster=digitalocean
-            config use-context develop/digitalocean/circleci
+            echo "${K8S_CIRCLECI_CACRT}" | base64 -d > /tmp/cacert
+            kubectl config set-credentials circleci \
+                    --token="${K8S_CIRCLECI_TOKEN}"
+            kubectl config set-cluster digitalocean \
+                    --server=https://e478c52e-1767-4652-a345-bbda4df85474.k8s.ondigitalocean.com \
+                    --certificate-authority=/tmp/cacert
+            kubectl config set-context develop/digitalocean/circleci \
+                    --user=circleci --namespace=app-develop --cluster=digitalocean
+            kubectl config use-context develop/digitalocean/circleci
+            kubectl version
 
       - run:
           name: "kubectl patch deployment"
           command: |
-            patch deployment -p ' \
-              {"spec":{"template":{"spec":{"containers":[ \
-                  {"name":"devops-task-pod", \
-                   "image":"docker.io/ulidtko/devops-api:develop.'${CIRCLE_SHA1}'"} \
-              ]}}}}'
+            kubectl patch deployment -p \
+              '{"spec":{"template":{"spec":{"containers":['\
+                  '{"name":"devops-task-pod", '\
+                   '"image":"docker.io/ulidtko/devops-api:develop.'${CIRCLE_SHA1}'"}'\
+              ']}}}}'
 
 
 
