@@ -17,7 +17,7 @@
 
 [ ] Make a better stack-build image. `fpco/stack-build{,-small}` is pathetic.
 [x] Implement persistent in-file (non-mock) DB.
-[ ] Branch segregation for deployment.
+[x] Branch segregation for deployment.
 [ ] QuickCheck-based test capable of catching the SQL injection in `Devops.Lib.DataAccess.DB`.
 
 ## Configuration

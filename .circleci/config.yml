@@ -91,7 +91,7 @@ jobs:
           command: |
             docker build \
                   -f .circleci/app-release.dockerfile \
-                  --tag ulidtko/devops-api:latest \
+                  --tag circleci/app:just-built \
                   .
 
       - run:
@@ -105,8 +105,17 @@ jobs:
 
       - run:
           name: "Push image"
-          command: >
-            docker push ulidtko/devops-api:latest
+          command: |
+            case $CIRCLE_BRANCH in
+              master)
+                docker tag circleci/app:just-built ulidtko/devops-api:latest-stage
+                docker push ulidtko/devops-api:latest-stage
+                ;;
+              develop)
+                docker tag circleci/app:just-built ulidtko/devops-api:latest-develop
+                docker push ulidtko/devops-api:latest-develop
+                ;;
+            esac
 
       - run:
           name: "Cleanup"
