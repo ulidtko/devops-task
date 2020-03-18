@@ -2,11 +2,16 @@
 
 ## CI/CD matters
 
-<!-- CI status badges -->[![CircleCI, branch master](https://img.shields.io/circleci/build/bb/ulidtko/wabalabadubda/master?label=master&token=b73c13cbee07743cc9812280b34b8482adb05681)][1] [![CircleCI, branch develop](https://img.shields.io/circleci/build/bb/ulidtko/wabalabadubda/develop?label=develop&token=b73c13cbee07743cc9812280b34b8482adb05681)][2]
-[1]: https://app.circleci.com/pipelines/bitbucket/ulidtko/wabalabadubda?branch=master
-[2]: https://app.circleci.com/pipelines/bitbucket/ulidtko/wabalabadubda?branch=develop
+<!-- CI status badges -->
 
-**Solution highlights**
+[![CircleCI, branch master][3]][1] [![CircleCI, branch develop][4]][2]
+
+[1]: https://app.circleci.com/pipelines/github/ulidtko/devops-task?branch=master
+[2]: https://app.circleci.com/pipelines/github/ulidtko/devops-task?branch=develop
+[3]: https://img.shields.io/circleci/build/gh/ulidtko/devops-task/master?label=master&token=b73c13cbee07743cc9812280b34b8482adb05681
+[4]: https://img.shields.io/circleci/build/gh/ulidtko/devops-task/develop?label=develop&token=b73c13cbee07743cc9812280b34b8482adb05681
+
+### Solution highlights ###
 
  * `stack.yaml.lock`-driven dependency caching.  
    Those commits affecting just the app code (and not touching stack.yaml) build in **2-3 minutes**. Those which do take **~30 minutes**.
@@ -15,28 +20,32 @@
 
 ### TODO
 
-[ ] Make a better stack-build image. `fpco/stack-build{,-small}` is pathetic.
-[x] Implement persistent in-file (non-mock) DB.
-[x] Branch segregation for deployment.
-[ ] QuickCheck-based test capable of catching the SQL injection in `Devops.Lib.DataAccess.DB`.
-[ ] Proper liveness checking route; `/api/warp-ping` or something. Without it, k8s deployment flickers (has no good way of health checking).
+- [ ] Make a better stack-build image. `fpco/stack-build{,-small}` is pathetic.
+
+- [x] Implement persistent in-file (non-mock) DB.
+
+- [x] Branch segregation for deployment.
+
+- [ ] QuickCheck-based test capable of catching the SQL injection in `Devops.Lib.DataAccess.DB`.
+
+- [ ] Proper liveness checking route; `/api/warp-ping` or something. Without it, k8s deployment flickers (has no good way of health checking).
 
 ### The CD part: Kubernetes
 
-First, check out `./minikube-deploy.sh` (assumes you got minikube up and running).
+First, check out [`./minikube-deploy.sh`](minikube-deploy.sh) (assumes you got minikube up and running).
 
-Next, there's a "simple" **live deployment** (a degree of CD integrated into CircleCI). This deployment is done mostly manually, using resource definitions from the `.k8s` subdirectory in this repo. The CI pipeline however, can *update* the live installation.
-
-  * Staging instance (k8s namespace `app-staging`) from branch `master`: TODO
+Next, there's a "simple" **live deployment** (a degree of CD integrated into CircleCI). This deployment is done mostly manually, using resource definitions from the [`.k8s`](.k8s/) subdirectory in this repo. The CI pipeline however, can *update* the live installation.
 
   * Development instance (k8s namespace `app-develop`) from branch `develop`:
 
-    curl -H'Content-Type: application/json' \
-        http://64.225.82.181/api \
-        -d'{"jsonrpc":"2.0","id":0,"method":"get_raw_transactions","params":{"address": "DEVADDR_K"}}' \
-        -u 'devops:Zee0aifoh[ghohv1'
+        curl -H'Content-Type: application/json' \
+            http://64.225.82.181/api \
+            -d'{"jsonrpc":"2.0","id":0,"method":"get_raw_transactions","params":{"address": "DEVADDR_K"}}' \
+            -u 'devops:Zee0aifoh[ghohv1'
 
 This "live deployment" is temporary for demonstration. It won't last long.
+
+-------------------------------------------------------------------------------
 
 
 ## Configuration
