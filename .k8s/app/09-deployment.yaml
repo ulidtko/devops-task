@@ -2,7 +2,6 @@ kind: Deployment
 apiVersion: apps/v1
 metadata:
   name: devops-api
-  namespace: app-develop
   labels:
     k8s-app: devops-test-task
 spec:

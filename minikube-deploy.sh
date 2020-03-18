@@ -10,20 +10,24 @@ log "minikube is prerequisite for this script."
 minikube status || die "Try running: minikube start"
 
 log "generating API Basic Auth password"
-password=$( python3 -c 'import base64; print(base64.a85encode(open("/dev/urandom", "rb").read(8)).decode("ascii"))' )
+password=$( python3 -c 'import binascii; print(binascii.hexlify(open("/dev/urandom", "rb").read(8)).decode("ascii"))' )
 username=devops
 
-log "writing generated creds into kustomization.yaml"
-#test -e .k8s/app/kustomization.yaml || {
-cat > .k8s/app/kustomization.yaml << EOF
-secretGenerator:
-- name: app-basic-creds
-- namespace: app-develop
-  literals:
-    - username="$username"
-    - password="$password"
-EOF
+log "creating Deployment"
+kubectl apply -f .k8s/app/ -n app-develop
 
-kubectl apply -f .k8s/app/
-kubectl apply -k .k8s/app/
+log "applying the generated creds"
+kubectl -n app-develop delete secret app-basic-creds || true
+kubectl -n app-develop \
+    create secret generic app-basic-creds \
+    --from-literal=username="$username" \
+    --from-literal=password="$password"
 
+log "exposing Deployment as NodePort Service"
+kubectl -n app-develop delete service devops-api || true
+kubectl -n app-develop expose deployment devops-api --type=NodePort
+url="$(minikube service -n app-develop devops-api --url)"
+
+log "All done. Poke the running api with a curl like this:"
+log ""
+log "$ curl -u $username:'$password' '$url'"
