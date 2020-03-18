@@ -158,7 +158,7 @@ jobs:
                    "image":"docker.io/ulidtko/devops-api:develop.${CIRCLE_SHA1}"}
               ]}}}}
             EOF
-            kubectl patch deployment -p "$IMG_TAG_PATCH"
+            kubectl patch deployment devops-api -p "$IMG_TAG_PATCH"
 
 
 
