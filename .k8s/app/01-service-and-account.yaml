@@ -1,0 +1,23 @@
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: task-user
+  namespace: app-develop
+  labels:
+    k8s-app: devops-test-task
+
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: devops-test-task
+  namespace: app-develop
+  labels:
+    k8s-app: devops-test-task
+spec:
+  selector:
+    k8s-app: devops-test-task
+  ports:
+    - port: 443
+      targetPort: 3000
