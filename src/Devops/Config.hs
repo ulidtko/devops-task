@@ -53,5 +53,5 @@ envOrDefault key def fn = fromMaybe def <$> lookupEnv key <**> pure fn
 
 getDbConf :: IO FilePath
 getDbConf =
-  lookupEnv "API_DB_FILE" >>=
+  lookupEnv "APP_DB_FILE" >>=
     maybe (emptySystemTempFile "counterparty.db") return
